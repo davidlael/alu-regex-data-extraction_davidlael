@@ -100,7 +100,7 @@ DROP TABLE users; -- ' OR '1'='1
 
 ## Directory Structure
 
-```text```
+```text
 alu-regex-data-extraction_davidlael/
 ├── input/
 │   └── raw-text.txt
