@@ -110,7 +110,9 @@ alu-regex-data-extraction_davidlael/
 │   └── sample-output.json
 ├── LICENSE
 └── README.md
-## Author
+---
+```
+## AUTHOR 
 
 **NZIZA LAEL DAVID**
 * Junior Frontend Developer / Student, Cohort 4
