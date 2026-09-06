@@ -65,7 +65,7 @@ The program implements high-precision Regular Expressions combined with secondar
 
 ## Directory Structure
 
-```text``
+```text
 alu-regex-data-extraction_davidlael/
 ├── input/
 │   └── raw-text.txt
