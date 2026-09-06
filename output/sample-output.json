@@ -1,11 +1,11 @@
 {
   "status": "SUCCESS",
   "extracted_summary": {
-    "total_emails": 1,
-    "total_urls": 2,
-    "total_phones": 1,
-    "total_valid_credit_cards": 1,
-    "rejected_entries_count": 4
+    "total_emails": 4,
+    "total_urls": 3,
+    "total_phones": 4,
+    "total_valid_credit_cards": 4,
+    "rejected_entries_count": 6
   },
   "data": {
     "emails": [
@@ -13,15 +13,46 @@
         "masked_value": "j***e@alueducation.com",
         "category": "ALU Official",
         "is_alu_domain": true
+      },
+      {
+        "masked_value": "a***8@alumni.alueducation.com",
+        "category": "ALU Alumni",
+        "is_alu_domain": true
+      },
+      {
+        "masked_value": "p***n@si.alueducation.com",
+        "category": "ALU SI",
+        "is_alu_domain": true
+      },
+      {
+        "masked_value": "d***d@tech-corp.co.uk",
+        "category": "General",
+        "is_alu_domain": false
       }
     ],
     "urls": [
+      "[https://docs.alueducation.com/api/v2/regex?query=test#section1](https://docs.alueducation.com/api/v2/regex?query=test#section1)",
       "[http://staging-portal.internal-dev.org:8080/dashboard](http://staging-portal.internal-dev.org:8080/dashboard)",
-      "[https://secure.site.org](https://secure.site.org)"
+      "[http://192.168.1.100/admin/login](http://192.168.1.100/admin/login)"
     ],
     "phones": [
       {
-        "raw_extracted": "+250 788 123 456",
+        "raw_extracted": "+1 (555) 234-5678",
+        "normalized_digits": "15552345678",
+        "valid_e164": true
+      },
+      {
+        "raw_extracted": "555-876-5432",
+        "normalized_digits": "5558765432",
+        "valid_e164": true
+      },
+      {
+        "raw_extracted": "+44 20 7946 0958",
+        "normalized_digits": "442079460958",
+        "valid_e164": true
+      },
+      {
+        "raw_extracted": "+250788123456",
         "normalized_digits": "250788123456",
         "valid_e164": true
       }
@@ -29,6 +60,18 @@
     "credit_cards": [
       {
         "masked_card": "****-****-****-1423",
+        "luhn_verified": true
+      },
+      {
+        "masked_card": "****-****-****-3456",
+        "luhn_verified": true
+      },
+      {
+        "masked_card": "****-****-****-310005",
+        "luhn_verified": true
+      },
+      {
+        "masked_card": "****-****-****-9010",
         "luhn_verified": true
       }
     ]
@@ -42,10 +85,14 @@
       "john.doe@@gmail..com"
     ],
     "rejected_invalid_luhn_cards": [
+      "4111-1111-1111",
       "4000-0000-0000-0002"
     ],
     "rejected_malformed_phones": [
       "123-ABC-7890"
+    ],
+    "rejected_script_urls": [
+      "[http://example.com/](http://example.com/)<script>alert(1)</script>"
     ]
   }
 }
