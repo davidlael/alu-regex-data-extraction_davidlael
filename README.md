@@ -39,8 +39,31 @@ The program implements high-precision Regular Expressions combined with secondar
 
 ---
 
+## Handled Edge Cases & Rejected Input Types
+
+* **Domain Spoofing**: Inputs like `hacker@alueducation.com.evil.com` are caught by strict word boundaries (`\b`) and rejected.
+* **Malformed Emails**: Syntax errors like `john.doe@@gmail..com` fail RFC match checks.
+* **XSS / HTML Injections**: URLs or strings containing `<script>` tags are sanitized and stripped of executable code before output.
+* **Luhn Failures & Invalid Lengths**: Cards like `4000-0000-0000-0002` pass standard length regex but are dropped after failing the Modulus 10 checksum.
+* **Invalid Phone Characters**: Strings containing letters like `123-ABC-7890` are discarded during digit verification.
+
+--- 
+
 ## Directory Structure
 
+---
+---
+
+## How to Run the Application
+
+### Prerequisites
+* Python 3.8 or higher installed on your environment.
+
+### Execution Steps
+1. **Clone the Repository**:
+   ```bash
+   git clone [https://github.com/davidlael/alu-regex-data-extraction_davidlael.git](https://github.com/davidlael/alu-regex-data-extraction_davidlael.git)
+   cd alu-regex-data-extraction_davidlael
 ```text
 alu-regex-data-extraction_davidlael/
 ├── input/
