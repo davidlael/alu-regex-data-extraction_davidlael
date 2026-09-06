@@ -110,3 +110,8 @@ alu-regex-data-extraction_davidlael/
 │   └── sample-output.json
 ├── LICENSE
 └── README.md
+## Author
+
+**NZIZA LAEL DAVID**
+* Junior Frontend Developer / Student, Cohort 4
+* African Leadership University (ALU)
