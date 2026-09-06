@@ -56,7 +56,7 @@ The program combines regular expressions with algorithmic checks and input sanit
 ## Real Sample Input vs. JSON Output Demonstration
 
 ### Sample Raw Log Input (`input/raw-text.txt`)
-```text``
+```text```
 CONTACT & SECURITY AUDIT LOG BATCH:
 - Staff Lead: jane.doe@alueducation.com (verified)
 - Spoofed Email Attempt: hacker@alueducation.com.evil.com (REJECT ME)
