@@ -31,9 +31,9 @@
       }
     ],
     "urls": [
-      "[https://docs.alueducation.com/api/v2/regex?query=test#section1](https://docs.alueducation.com/api/v2/regex?query=test#section1)",
-      "[http://staging-portal.internal-dev.org:8080/dashboard](http://staging-portal.internal-dev.org:8080/dashboard)",
-      "[http://192.168.1.100/admin/login](http://192.168.1.100/admin/login)"
+      "https://docs.alueducation.com/api/v2/regex?query=test#section1",
+      "http://staging-portal.internal-dev.org:8080/dashboard",
+      "http://192.168.1.100/admin/login"
     ],
     "phones": [
       {
@@ -92,7 +92,7 @@
       "123-ABC-7890"
     ],
     "rejected_script_urls": [
-      "[http://example.com/](http://example.com/)<script>alert(1)</script>"
+      "http://example.com/<script>alert(1)</script>"
     ]
   }
 }
