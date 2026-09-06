@@ -25,7 +25,7 @@ The program combines regular expressions with algorithmic checks and input sanit
 
 ### 3. URL Extraction & Script Filtering
 * **Regex Pattern**: `\bhttps?://(?:[A-Za-z0-9-]+\.)+[A-Za-z]{2,}|https?://(?:\d{1,3}\.){3}\d{1,3}(?::\d+)?(?:/[^\s<>]*)?`
-  * *Design Justification*: Captures HTTP/HTTPS web endpoints, standard domain names, raw IP addresses (`192.168.1.100`), custom ports (`:8080`), and URL query parameters. Combined with input pre-sanitization, valid URLs embedded adjacent to script tags are safely recovered after `<script>` tags are stripped.
+  * *Design Justification*: Captures HTTP/HTTPS web endpoints, standard domain names, raw IP addresses (`192.168.1.100`), custom ports (`:8080`), and URL query parameters. Combined with input pre-sanitization, valid URLs containing embedded script tags (`<script>`) are rejected from output data payloads and logged in security audits.
 
 ### 4. Phone Number Normalization
 * **Regex Pattern**: `(?:\+?\d{1,3}[\s.-]?)?\(?\d{2,4}\)?[\s.-]?\d{3,4}[\s.-]?\d{3,4}\b`
@@ -35,7 +35,7 @@ The program combines regular expressions with algorithmic checks and input sanit
 
 ## Defensive Engineering & Security Considerations
 
-1. **Input Pre-Sanitization**: Incoming raw log text passes through `sanitize_input()` to replace `<script>` tags with harmless placeholder tokens (`[BLOCKED_SCRIPT]`) before regex evaluation. This protects downstream log parsers while enabling recovery of valid adjacent payload URLs.
+1. **Input Pre-Sanitization**: Incoming raw log text passes through `sanitize_input()` to identify XSS execution attempts before regex evaluation.
 2. **PII & PCI Masking**: Email usernames are redacted (`j***e@alueducation.com`) and credit card numbers are truncated (`****-****-****-1423`) within the primary payload (`data`) to enforce privacy regulations and PCI-DSS compliance.
 3. **Security Audit Policy (Unmasked Forensics)**: Rejected/malformed entries captured in `security_audit` intentionally preserve raw string values (e.g., `hacker@alueducation.com.evil.com`) to allow security operation teams to perform threat analysis, block malicious IP ranges, and trace attack origins.
 4. **Resilience to Injection & Noise**: SQL injection payloads (`DROP TABLE users; --`) and illegal syntax (`john.doe@@gmail..com`) fail validation checks and are safely routed to audit logs as untrusted noise.
@@ -45,39 +45,57 @@ The program combines regular expressions with algorithmic checks and input sanit
 ## Handled Edge Cases & Validated Inputs
 
 ### Test Cases Implemented in `raw-text.txt`
-* **XSS Script Tag Neutralization**: `<script>alert('xss')</script>https://secure.site.org` neutralizes the script execution attempt while extracting the valid trailing target URL `https://secure.site.org`.
+* **XSS Script Tag Neutralization**: Blocked script injections while capturing legitimate targets.
 * **Domain Spoofing Prevention**: `hacker@alueducation.com.evil.com` fails anchored sub-domain checks and is flagged in security audit logs.
 * **Malformed Email Rejection**: `john.doe@@gmail..com` fails RFC syntax checks.
 * **Non-Numeric Phone Filtering**: `123-ABC-7890` is discarded during digit verification.
-* **Luhn Check Failure**: `4000-0000-0000-0002` passes initial digit length matching but is dropped after failing the Modulus 10 checksum test.
+* **Luhn Check & Length Failure**: `4000-0000-0000-0002` and `4111-1111-1111` are dropped due to checksum or length mismatch.
 
 ---
 
 ## Real Sample Input vs. JSON Output Demonstration
 
 ### Sample Raw Log Input (`input/raw-text.txt`)
-```text```
-CONTACT & SECURITY AUDIT LOG BATCH:
-- Staff Lead: jane.doe@alueducation.com (verified)
-- Spoofed Email Attempt: hacker@alueducation.com.evil.com (REJECT ME)
-- Invalid Syntax Email: john.doe@@gmail..com (REJECT ME)
+```text
+================================================================================
+SYSTEM AUDIT LOG - INGESTION ENGINE v4.2.1
+TIMESTAMP: 2026-03-31T08:14:22Z
+================================================================================
 
-COMMUNICATION ENDPOINTS:
-- Direct Support: +250 788 123 456
-- Invalid Character Phone: 123-ABC-7890 (REJECT ME)
+[INFO] User onboarding activity detected from gateway node alpha-09.
+
+CONTACT DATA BATCH:
+- Primary Contact: jane.doe@alueducation.com (verified staff)
+- Alumni Contact: alex.smith88@alumni.alueducation.com
+- Instructor Contact: prof.johnson@si.alueducation.com
+- External Partner: dev-team_lead@tech-corp.co.uk
+- Invalid Domain Injection Attempt: hacker@alueducation.com.evil.com (REJECT ME)
+- Malformed Email: john.doe@@gmail..com (REJECT ME)
 
 RESOURCE ENDPOINTS:
+- Public Documentation: [https://docs.alueducation.com/api/v2/regex?query=test#section1](https://docs.alueducation.com/api/v2/regex?query=test#section1)
 - Staging Portal: [http://staging-portal.internal-dev.org:8080/dashboard](http://staging-portal.internal-dev.org:8080/dashboard)
-- Injection Endpoint: <script>alert('xss')</script>[https://secure.site.org](https://secure.site.org)
+- IP Address Target: [http://192.168.1.100/admin/login](http://192.168.1.100/admin/login)
+- Malicious Script Injection URL: [http://example.com/](http://example.com/)<script>alert(1)</script> (REJECT ME)
 
-PAYMENT INGESTION LOGS:
-- Valid Visa Payment: 4532 0150 9982 1423
-- Invalid Checksum Card: 4000-0000-0000-0002 (REJECT ME)
+TELEPHONY DATA:
+- US Standard: +1 (555) 234-5678
+- Local Format: 555-876-5432
+- International Extension: +44 20 7946 0958
+- Compact Direct: +250788123456
+- Invalid Phone: 123-ABC-7890 (REJECT ME)
 
-METADATA & CURRENCY NOISE:
-- Processing Fee: $150.00 / RWF 200,000
-- Audit Tags: #SystemAudit #SecurityLab
+PAYMENT INGESTION TESTING:
+- Visa Test Card: 4532 0150 9982 1423
+- Mastercard Test Card: 5412-7512-3412-3456
+- Amex Test Card: 378282246310005
+- Unmasked PCI Breach Risk Card: 4000-1234-5678-9010
+- Invalid Card Length: 4111-1111-1111 (REJECT ME)
+- Invalid Card Luhn Check Failure: 4000-0000-0000-0002 (REJECT ME)
 
+SECURITY TESTING NOISE & XSS PAYLOADS:
+<script>document.cookie='session=stolen';</script>
+DROP TABLE users; -- ' OR '1'='1
 
 
 ## Directory Structure
