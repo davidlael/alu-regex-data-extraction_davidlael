@@ -47,11 +47,7 @@ The program implements high-precision Regular Expressions combined with secondar
 * **Luhn Failures & Invalid Lengths**: Cards like `4000-0000-0000-0002` pass standard length regex but are dropped after failing the Modulus 10 checksum.
 * **Invalid Phone Characters**: Strings containing letters like `123-ABC-7890` are discarded during digit verification.
 
---- 
 
-## Directory Structure
-
----
 ---
 
 ## How to Run the Application
@@ -61,10 +57,15 @@ The program implements high-precision Regular Expressions combined with secondar
 
 ### Execution Steps
 1. **Clone the Repository**:
-   ```bash
+   ```bash```
    git clone [https://github.com/davidlael/alu-regex-data-extraction_davidlael.git](https://github.com/davidlael/alu-regex-data-extraction_davidlael.git)
    cd alu-regex-data-extraction_davidlael
-```text
+
+---
+
+## Directory Structure
+
+```text``
 alu-regex-data-extraction_davidlael/
 ├── input/
 │   └── raw-text.txt
