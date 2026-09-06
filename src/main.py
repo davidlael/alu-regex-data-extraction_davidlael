@@ -53,7 +53,7 @@ def process_logs(input_path: str, output_path: str):
     with open(input_path, "r", encoding="utf-8") as f:
         raw_text = f.read()
 
-    # Step 1: Pre-Sanitization
+    # Step 1: Pre-Sanitization for XSS defense
     sanitized_text, xss_count = sanitize_input(raw_text)
 
     # Step 2: Extract & Process Emails
@@ -65,12 +65,10 @@ def process_logs(input_path: str, output_path: str):
     rejected_malformed = []
 
     for email in all_emails:
-        # Check RFC validity / double @ errors
         if email.count("@") > 1 or ".." in email:
             rejected_malformed.append(email)
             continue
 
-        # Subdomain / Domain Validation
         is_alu = False
         category = "General"
         if re.match(r"^[A-Za-z0-9._%+-]+@alueducation\.com$", email):
@@ -83,7 +81,6 @@ def process_logs(input_path: str, output_path: str):
             is_alu = True
             category = "ALU SI"
         elif "alueducation.com" in email:
-            # Domain spoofing detection (e.g., user@alueducation.com.evil.com)
             rejected_spoofed.append(email)
             continue
 
@@ -93,14 +90,22 @@ def process_logs(input_path: str, output_path: str):
             "is_alu_domain": is_alu
         })
 
-    # Step 3: Extract URLs
-    url_regex = re.compile(
-        r"\bhttps?://(?:[A-Za-z0-9-]+\.)+[A-Za-z]{2,}"
-        r"|https?://(?:\d{1,3}\.){3}\d{1,3}(?::\d+)?(?:/[^\s<>]*)?"
+    # Step 3: Extract URLs & Filter Malicious Scripts
+    raw_url_regex = re.compile(
+        r"\bhttps?://[^\s<>\"]+"
     )
-    extracted_urls = url_regex.findall(sanitized_text)
+    all_raw_urls = raw_url_regex.findall(raw_text)
 
-    # Step 4: Extract & Process Phones
+    valid_urls = []
+    rejected_script_urls = []
+
+    for url in all_raw_urls:
+        if "<script" in url.lower() or "</script>" in url.lower():
+            rejected_script_urls.append(url)
+        else:
+            valid_urls.append(url)
+
+    # Step 4: Extract & Process Telephony Data
     phone_regex = re.compile(r"(?:\+?\d{1,3}[\s.-]?)?\(?\d{2,4}\)?[\s.-]?\d{3,4}[\s.-]?\d{3,4}\b")
     phone_candidates = phone_regex.findall(sanitized_text)
 
@@ -118,7 +123,7 @@ def process_logs(input_path: str, output_path: str):
         else:
             rejected_phones.append(p.strip())
 
-    # Step 5: Extract & Process Credit Cards
+    # Step 5: Extract & Process Credit Cards (PCI-DSS Validation)
     card_regex = re.compile(r"\b(?:\d{4}[-\s]?){3}\d{1,4}\b|\b\d{15,16}\b")
     raw_cards = card_regex.findall(sanitized_text)
 
@@ -134,27 +139,28 @@ def process_logs(input_path: str, output_path: str):
         else:
             rejected_cards.append(card)
 
-    # Calculate Total Rejections
+    # Calculate Total Security Rejections
     total_rejections = (
         len(rejected_spoofed)
         + len(rejected_malformed)
         + len(rejected_cards)
         + len(rejected_phones)
+        + len(rejected_script_urls)
     )
 
-    # Construct Final Output Payload
+    # Construct Final JSON Payload
     output_payload = {
         "status": "SUCCESS",
         "extracted_summary": {
             "total_emails": len(valid_emails),
-            "total_urls": len(extracted_urls),
+            "total_urls": len(valid_urls),
             "total_phones": len(valid_phones),
             "total_valid_credit_cards": len(valid_cards),
             "rejected_entries_count": total_rejections
         },
         "data": {
             "emails": valid_emails,
-            "urls": extracted_urls,
+            "urls": valid_urls,
             "phones": valid_phones,
             "credit_cards": valid_cards
         },
@@ -163,7 +169,8 @@ def process_logs(input_path: str, output_path: str):
             "rejected_spoofed_domains": rejected_spoofed,
             "rejected_malformed_emails": rejected_malformed,
             "rejected_invalid_luhn_cards": rejected_cards,
-            "rejected_malformed_phones": rejected_phones
+            "rejected_malformed_phones": rejected_phones,
+            "rejected_script_urls": rejected_script_urls
         }
     }
 
