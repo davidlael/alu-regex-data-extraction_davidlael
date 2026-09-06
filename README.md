@@ -56,7 +56,7 @@ The program combines regular expressions with algorithmic checks and input sanit
 ## Real Sample Input vs. JSON Output Demonstration
 
 ### Sample Raw Log Input (`input/raw-text.txt`)
-```text
+```text```
 ================================================================================
 SYSTEM AUDIT LOG - INGESTION ENGINE v4.2.1
 TIMESTAMP: 2026-03-31T08:14:22Z
@@ -100,7 +100,7 @@ DROP TABLE users; -- ' OR '1'='1
 
 ## Directory Structure
 
-```text
+```text```
 alu-regex-data-extraction_davidlael/
 ├── input/
 │   └── raw-text.txt
