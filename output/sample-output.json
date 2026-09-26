@@ -1,11 +1,11 @@
 {
   "status": "SUCCESS",
   "extracted_summary": {
-    "total_emails": 4,
-    "total_urls": 3,
-    "total_phones": 4,
-    "total_valid_credit_cards": 4,
-    "rejected_entries_count": 6
+    "total_emails": 3,
+    "total_urls": 2,
+    "total_phones": 2,
+    "total_valid_credit_cards": 5,
+    "rejected_entries_count": 8,
   },
   "data": {
     "emails": [
