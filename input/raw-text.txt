@@ -1,7 +1,5 @@
-================================================================================
 SYSTEM AUDIT LOG - INGESTION ENGINE v4.2.1
 TIMESTAMP: 2026-03-42T08:14:22Z
-================================================================================
 
 [INFO] User onboarding activity detected from gateway node alpha-09.
 
