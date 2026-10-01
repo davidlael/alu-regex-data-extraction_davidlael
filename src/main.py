@@ -52,11 +52,7 @@ def process_logs(input_path: str, output_path: str):
 
     with open(input_path, "r", encoding="utf-8") as f:
         raw_text = f.read()
-
-    # Step 1: Pre-Sanitization for XSS defense
     sanitized_text, xss_count = sanitize_input(raw_text)
-
-    # Step 2: Extract & Process Emails
     email_regex = re.compile(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b")
     all_emails = email_regex.findall(sanitized_text)
 
@@ -89,8 +85,6 @@ def process_logs(input_path: str, output_path: str):
             "category": category,
             "is_alu_domain": is_alu
         })
-
-    # Step 3: Extract URLs & Filter Malicious Scripts
     raw_url_regex = re.compile(
         r"\bhttps?://[^\s<>\"]+"
     )
@@ -104,8 +98,6 @@ def process_logs(input_path: str, output_path: str):
             rejected_script_urls.append(url)
         else:
             valid_urls.append(url)
-
-    # Step 4: Extract & Process Telephony Data
     phone_regex = re.compile(r"(?:\+?\d{1,3}[\s.-]?)?\(?\d{2,4}\)?[\s.-]?\d{3,4}[\s.-]?\d{3,4}\b")
     phone_candidates = phone_regex.findall(sanitized_text)
 
@@ -122,8 +114,6 @@ def process_logs(input_path: str, output_path: str):
             })
         else:
             rejected_phones.append(p.strip())
-
-    # Step 5: Extract & Process Credit Cards (PCI-DSS Validation)
     card_regex = re.compile(r"\b(?:\d{4}[-\s]?){3}\d{1,4}\b|\b\d{15,16}\b")
     raw_cards = card_regex.findall(sanitized_text)
 
@@ -138,8 +128,6 @@ def process_logs(input_path: str, output_path: str):
             })
         else:
             rejected_cards.append(card)
-
-    # Calculate Total Security Rejections
     total_rejections = (
         len(rejected_spoofed)
         + len(rejected_malformed)
@@ -147,8 +135,6 @@ def process_logs(input_path: str, output_path: str):
         + len(rejected_phones)
         + len(rejected_script_urls)
     )
-
-    # Construct Final JSON Payload
     output_payload = {
         "status": "SUCCESS",
         "extracted_summary": {
@@ -173,8 +159,6 @@ def process_logs(input_path: str, output_path: str):
             "rejected_script_urls": rejected_script_urls
         }
     }
-
-    # Write Output JSON
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(output_payload, f, indent=2)
